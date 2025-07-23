@@ -1,0 +1,25 @@
+# CFDI Control Application Dependencies
+
+# Core Python packages
+openpyxl>=3.1.0          # Excel file processing
+lxml>=4.9.0              # XML processing (faster than xml.etree)
+pandas>=2.0.0            # Data manipulation (optional, for advanced features)
+
+# GUI (built-in with Python)
+# tkinter - included with Python installation (install python-tk via Homebrew on macOS)
+
+# Packaging for cross-platform executables
+PyInstaller>=5.13.0      # Create standalone executables
+
+# Development and testing
+pytest>=7.4.0           # Testing framework
+black>=23.0.0           # Code formatting
+flake8>=6.0.0           # Code linting
+
+# Optional: Data validation
+pydantic>=2.0.0         # Data validation (if needed)
+
+# Logging and configuration (built-in)
+# logging - included with Python
+# configparser - included with Python
+# json - included with Python 
