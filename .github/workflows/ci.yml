@@ -98,11 +98,35 @@ jobs:
       run: |
         pyinstaller cfdi_control.spec
     
+    - name: Prepare distribution package
+      run: |
+        # Create distribution directory
+        mkdir -p dist/CFDI_Control_${{ runner.os }}
+        
+        # Copy executable
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          cp dist/CFDI_Control.exe dist/CFDI_Control_${{ runner.os }}/
+        else
+          cp dist/CFDI_Control dist/CFDI_Control_${{ runner.os }}/
+        fi
+        
+        # Copy documentation
+        cp docs/USER_MANUAL.md dist/CFDI_Control_${{ runner.os }}/
+        cp README.md dist/CFDI_Control_${{ runner.os }}/
+        
+        # Create zip file
+        cd dist
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          powershell Compress-Archive -Path CFDI_Control_${{ runner.os }} -DestinationPath CFDI_Control_${{ runner.os }}.zip
+        else
+          zip -r CFDI_Control_${{ runner.os }}.zip CFDI_Control_${{ runner.os }}/
+        fi
+    
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: cfdi-control-${{ runner.os }}
-        path: dist/
+        path: dist/CFDI_Control_${{ runner.os }}.zip
 
   release:
     name: Create Release
@@ -125,9 +149,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: |
-          cfdi-control-ubuntu-latest/CFDI_Control
-          cfdi-control-windows-latest/CFDI_Control.exe
-          cfdi-control-macOS-latest/CFDI_Control
+          cfdi-control-ubuntu-latest/CFDI_Control_ubuntu-latest.zip
+          cfdi-control-windows-latest/CFDI_Control_windows-latest.zip
+          cfdi-control-macOS-latest/CFDI_Control_macOS-latest.zip
         tag_name: v${{ github.run_number }}
         name: Release v${{ github.run_number }}
         body: |
@@ -137,10 +161,16 @@ jobs:
           - Automated build and test suite
           - Cross-platform executable generation
           - Security scanning and quality checks
+          - Documentation included in distribution packages
           
           ## Downloads
-          - Linux: cfdi_control (Ubuntu)
-          - Windows: cfdi_control.exe
-          - macOS: cfdi_control (macOS)
+          Each package contains:
+          - Executable file for the platform
+          - User Manual (USER_MANUAL.md)
+          - README.md
+          
+          - Linux: CFDI_Control_ubuntu-latest.zip
+          - Windows: CFDI_Control_windows-latest.zip
+          - macOS: CFDI_Control_macOS-latest.zip
         draft: false
         prerelease: false 

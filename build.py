@@ -118,7 +118,15 @@ def create_distribution_package():
     
     # Create distribution directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    dist_dir = f"CFDI_Control_v1.0_{timestamp}"
+    system = platform.system()
+    if system == "Windows":
+        platform_name = "windows"
+    elif system == "Darwin":
+        platform_name = "macOS"
+    else:
+        platform_name = "ubuntu"
+    
+    dist_dir = f"CFDI_Control_{platform_name}_{timestamp}"
     
     if os.path.exists(dist_dir):
         subprocess.run(["rm", "-rf", dist_dir])
@@ -126,30 +134,37 @@ def create_distribution_package():
     os.makedirs(dist_dir)
     
     # Copy executable
-    system = platform.system()
     if system == "Windows":
         exe_name = "CFDI_Control.exe"
-    elif system == "Darwin":
-        exe_name = "CFDI_Control"
     else:
         exe_name = "CFDI_Control"
     
     if os.path.exists(f"dist/{exe_name}"):
-        subprocess.run(["cp", "-r", f"dist/{exe_name}", dist_dir])
+        subprocess.run(["cp", f"dist/{exe_name}", dist_dir])
     
     # Copy documentation
-    if os.path.exists("docs"):
-        subprocess.run(["cp", "-r", "docs", dist_dir])
+    if os.path.exists("docs/USER_MANUAL.md"):
+        subprocess.run(["cp", "docs/USER_MANUAL.md", dist_dir])
     
     # Copy README
     if os.path.exists("README.md"):
         subprocess.run(["cp", "README.md", dist_dir])
     
-    # Create installation script
-    create_install_script(dist_dir, system)
+    # Create zip file
+    zip_name = f"{dist_dir}.zip"
+    if os.path.exists(zip_name):
+        os.remove(zip_name)
     
-    print(f"✓ Distribution package created: {dist_dir}")
-    return dist_dir
+    if system == "Windows":
+        subprocess.run(["powershell", "Compress-Archive", "-Path", dist_dir, "-DestinationPath", zip_name])
+    else:
+        subprocess.run(["zip", "-r", zip_name, dist_dir])
+    
+    # Clean up temp directory
+    subprocess.run(["rm", "-rf", dist_dir])
+    
+    print(f"✓ Distribution package created: {zip_name}")
+    return zip_name
 
 def create_install_script(dist_dir, system):
     """Create platform-specific installation script."""
