@@ -138,6 +138,15 @@ A desktop app built with Python 3.11, Tkinter for the GUI, and modules for Excel
   - [ ] Create distribution packages
   - [ ] Test executables on target platforms
 
+- [ ] **CI/CD Pipeline with GitHub Actions**
+  - [ ] Set up GitHub Actions workflow
+  - [ ] Configure automated testing on push/PR
+  - [ ] Add code quality checks (linting, formatting)
+  - [ ] Set up automated builds for different platforms
+  - [ ] Configure release automation
+  - [ ] Add security scanning
+  - [ ] Set up deployment to releases
+
 ---
 
 ## 🔧 Technical Considerations
