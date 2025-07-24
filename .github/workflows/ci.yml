@@ -83,7 +83,7 @@ jobs:
         safety check
     
     - name: Upload security report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: security-report
         path: bandit-report.json
@@ -125,7 +125,7 @@ jobs:
         fi
     
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: cfdi-control-${{ runner.os }}
         path: dist/
