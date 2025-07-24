@@ -25,7 +25,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     
     - name: Cache pip dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
@@ -36,7 +36,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-cov flake8 black
+        pip install pytest flake8 black
     
     - name: Run linting
       run: |
@@ -47,17 +47,9 @@ jobs:
       run: |
         black --check src/ tests/
     
-    - name: Run tests with coverage
+    - name: Run tests
       run: |
-        python -m pytest tests/ -v --cov=src --cov-report=xml --cov-report=html
-    
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
+        python -m pytest tests/ -v
 
   security:
     name: Security Scan
@@ -72,21 +64,12 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install security tools
+    - name: Run security scan
       run: |
         python -m pip install --upgrade pip
         pip install bandit safety
-    
-    - name: Run security scan
-      run: |
-        bandit -r src/ -f json -o bandit-report.json || true
+        bandit -r src/ || true
         safety check
-    
-    - name: Upload security report
-      uses: actions/upload-artifact@v3
-      with:
-        name: security-report
-        path: bandit-report.json
 
   build:
     name: Build Executables
@@ -125,7 +108,7 @@ jobs:
         fi
     
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: cfdi-control-${{ runner.os }}
         path: dist/
@@ -141,10 +124,10 @@ jobs:
       uses: actions/checkout@v4
     
     - name: Download all build artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
     
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           cfdi-control-ubuntu-latest/*
