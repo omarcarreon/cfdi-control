@@ -78,7 +78,7 @@ class CFDIApplication:
         year_frame.grid(row=2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
         
         ttk.Label(year_frame, text="Año:").grid(row=0, column=0, padx=(0, 5))
-        self.year_var = tk.StringVar(value="2024")
+        self.year_var = tk.StringVar(value="2025")
         year_combo = ttk.Combobox(year_frame, textvariable=self.year_var, 
                                   values=[str(year) for year in range(2020, 2031)], 
                                   width=10, state="readonly")
@@ -86,9 +86,9 @@ class CFDIApplication:
         
         # Month selection
         ttk.Label(year_frame, text="Mes:").grid(row=0, column=2, padx=(0, 5))
-        self.month_var = tk.StringVar(value="01")
+        self.month_var = tk.StringVar(value="")  # No default selection
         month_combo = ttk.Combobox(year_frame, textvariable=self.month_var,
-                                   values=[f"{i:02d}" for i in range(1, 13)],
+                                   values=[""] + [f"{i:02d}" for i in range(1, 13)],  # Add empty option
                                    width=10, state="readonly")
         month_combo.grid(row=0, column=3)
         
@@ -130,9 +130,9 @@ class CFDIApplication:
         self.status_var = tk.StringVar(value="Listo para procesar")
         ttk.Label(main_frame, textvariable=self.status_var).grid(row=10, column=0, columnspan=2, pady=5)
         
-        # Process button
+        # Process button (initially disabled)
         self.process_button = ttk.Button(main_frame, text="Procesar Archivos CFDI", 
-                                        command=self.process_files)
+                                        command=self.process_files, state="disabled")
         self.process_button.grid(row=11, column=0, columnspan=2, pady=10)
         
         # Open file location button (initially disabled)
@@ -142,6 +142,11 @@ class CFDIApplication:
         
         # Store output file path
         self.output_file_path = None
+        
+        # Bind validation to year and month changes
+        self.year_var.trace_add('write', self._validate_inputs)
+        self.month_var.trace_add('write', self._validate_inputs)
+        self.excel_path_var.trace_add('write', self._validate_inputs)
         
     def _process_files_worker(self, year: int, month: int):
         """
@@ -237,6 +242,20 @@ class CFDIApplication:
         """Enable the download button."""
         self.download_button.config(state="normal")
     
+    def _validate_inputs(self, *args):
+        """Validate all inputs and enable/disable process button accordingly."""
+        # Check if all required fields are filled
+        year_selected = self.year_var.get().strip() != ""
+        month_selected = self.month_var.get().strip() != ""
+        excel_selected = self.excel_path_var.get().strip() != ""
+        xml_selected = hasattr(self, 'selected_xml_files') and len(self.selected_xml_files) > 0
+        
+        # Enable process button only if all conditions are met
+        if year_selected and month_selected and excel_selected and xml_selected:
+            self.process_button.config(state="normal")
+        else:
+            self.process_button.config(state="disabled")
+    
     def open_file_location(self):
         """Open the file location in the system's file explorer."""
         if self.output_file_path and os.path.exists(self.output_file_path):
@@ -271,6 +290,7 @@ class CFDIApplication:
         )
         if filename:
             self.excel_path_var.set(filename)
+            self._validate_inputs()  # Trigger validation
             
     def select_xml_files(self):
         """Open file dialog to select multiple XML files."""
@@ -285,6 +305,7 @@ class CFDIApplication:
         else:
             self.xml_files_var.set("No se han seleccionado archivos")
             self.selected_xml_files = []
+        self._validate_inputs()  # Trigger validation
             
     def process_files(self):
         """Process the selected files."""
@@ -298,6 +319,10 @@ class CFDIApplication:
             return
         
         # Get year and month
+        if not self.year_var.get().strip() or not self.month_var.get().strip():
+            messagebox.showerror("Error", "Por favor seleccione un año y mes válidos.")
+            return
+            
         try:
             year = int(self.year_var.get())
             month = int(self.month_var.get())
