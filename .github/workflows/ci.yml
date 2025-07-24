@@ -10,6 +10,8 @@ jobs:
   test:
     name: Test Suite
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     strategy:
       matrix:
@@ -45,6 +47,8 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
     - name: Checkout code
@@ -67,6 +71,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     
     strategy:
       matrix:
@@ -103,6 +109,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test, security, build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout code
@@ -113,6 +121,8 @@ jobs:
     
     - name: Create Release
       uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         files: |
           cfdi-control-ubuntu-latest/CFDI_Control
@@ -133,6 +143,4 @@ jobs:
           - Windows: cfdi_control.exe
           - macOS: cfdi_control (macOS)
         draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        prerelease: false 
