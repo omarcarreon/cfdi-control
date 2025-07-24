@@ -135,9 +135,9 @@ class CFDIApplication:
                                         command=self.process_files)
         self.process_button.grid(row=11, column=0, columnspan=2, pady=10)
         
-        # Download button (initially disabled)
-        self.download_button = ttk.Button(main_frame, text="Descargar Archivo Procesado", 
-                                         command=self.download_file, state="disabled")
+        # Open file location button (initially disabled)
+        self.download_button = ttk.Button(main_frame, text="Abrir Ubicación del Archivo", 
+                                         command=self.open_file_location, state="disabled")
         self.download_button.grid(row=12, column=0, columnspan=2, pady=5)
         
         # Store output file path
@@ -214,7 +214,8 @@ class CFDIApplication:
             success_msg += f"Archivos procesados: {processing_result.successful_files}\n"
             success_msg += f"Archivos con errores: {processing_result.failed_files}\n"
             success_msg += f"Registros llenados: {excel_result['records_processed']}\n"
-            success_msg += f"Archivo de salida: {Path(excel_result['output_path']).name}"
+            success_msg += f"Archivo de salida: {Path(excel_result['output_path']).name}\n\n"
+            success_msg += f"Use el botón 'Abrir Ubicación del Archivo' para encontrar el archivo procesado."
             
             self.root.after(0, lambda: messagebox.showinfo("Éxito", success_msg))
             self.root.after(0, self._enable_download)
@@ -236,24 +237,29 @@ class CFDIApplication:
         """Enable the download button."""
         self.download_button.config(state="normal")
     
-    def download_file(self):
-        """Open the output file in the default application."""
+    def open_file_location(self):
+        """Open the file location in the system's file explorer."""
         if self.output_file_path and os.path.exists(self.output_file_path):
             try:
                 import subprocess
                 import platform
                 
                 system = platform.system()
+                file_path = Path(self.output_file_path)
+                
                 if system == "Darwin":  # macOS
-                    subprocess.run(["open", self.output_file_path])
+                    # Open folder and select the file in Finder
+                    subprocess.run(["open", "-R", str(file_path)])
                 elif system == "Windows":
-                    subprocess.run(["start", self.output_file_path], shell=True)
+                    # Open folder and select the file in Windows Explorer
+                    subprocess.run(["explorer", "/select,", str(file_path)], shell=True)
                 else:  # Linux
-                    subprocess.run(["xdg-open", self.output_file_path])
+                    # Open folder in default file manager
+                    subprocess.run(["xdg-open", str(file_path.parent)])
                     
-                messagebox.showinfo("Información", f"Archivo abierto: {Path(self.output_file_path).name}")
+                messagebox.showinfo("Información", f"Ubicación del archivo abierta: {file_path.name}")
             except Exception as e:
-                messagebox.showerror("Error", f"No se pudo abrir el archivo: {str(e)}")
+                messagebox.showerror("Error", f"No se pudo abrir la ubicación del archivo: {str(e)}")
         else:
             messagebox.showerror("Error", "No hay archivo procesado disponible para descargar.")
         

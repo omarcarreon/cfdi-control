@@ -90,13 +90,7 @@ jobs:
     
     - name: Build executable
       run: |
-        if [ "$RUNNER_OS" = "Windows" ]; then
-          pyinstaller --onefile --windowed src/main.py --name cfdi_control
-        elif [ "$RUNNER_OS" = "macOS" ]; then
-          pyinstaller --onefile --windowed src/main.py --name cfdi_control
-        else
-          pyinstaller --onefile src/main.py --name cfdi_control
-        fi
+        pyinstaller cfdi_control.spec
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -121,9 +115,9 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          cfdi-control-ubuntu-latest/*
-          cfdi-control-windows-latest/*
-          cfdi-control-macOS-latest/*
+          cfdi-control-ubuntu-latest/CFDI_Control
+          cfdi-control-windows-latest/CFDI_Control.exe
+          cfdi-control-macOS-latest/CFDI_Control
         tag_name: v${{ github.run_number }}
         name: Release v${{ github.run_number }}
         body: |
