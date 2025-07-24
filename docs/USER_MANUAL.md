@@ -37,35 +37,41 @@ La Aplicación de Control CFDI es una herramienta de escritorio diseñada para p
 - La aplicación se abrirá mostrando la ventana principal
 
 ### 2. Seleccionar Año y Mes
-- En la sección "Selección de Período":
-  - Seleccione el **Año** del menú desplegable
-  - Seleccione el **Mes** del menú desplegable
+- En la sección "Seleccionar Año y Mes":
+  - Seleccione el **Año** del menú desplegable (por defecto: 2025)
+  - Seleccione el **Mes** del menú desplegable (nombres en español: Enero, Febrero, Marzo, etc.)
+- **Nota**: El mes debe estar sin seleccionar inicialmente. Seleccione un mes antes de procesar.
 - Esta selección determinará en qué pestaña del Excel se llenarán los datos
 
 ### 3. Cargar Plantilla Excel
-- Haga clic en el botón "Seleccionar Plantilla Excel"
+- Haga clic en el botón "Examinar" junto al campo "Plantilla Excel"
 - Navegue hasta la ubicación de su plantilla de control
 - Seleccione el archivo Excel (.xlsx)
 - La aplicación validará que el archivo tenga las 12 pestañas de meses
+- **Nota**: Las pestañas del Excel deben tener nombres como "Ene2025", "Feb2025", etc.
 
 ### 4. Seleccionar Archivos XML
-- Haga clic en el botón "Seleccionar Archivos XML"
+- Haga clic en el botón "Seleccionar Archivos" junto al campo "Archivos XML"
 - Navegue hasta la carpeta que contiene los archivos XML de CFDI
 - Seleccione múltiples archivos XML (Ctrl+clic para selección múltiple)
 - Los archivos deben ser CFDI válidos del período seleccionado
+- **Nota**: El botón "Procesar Archivos CFDI" se habilitará solo cuando todos los campos estén completos
 
 ### 5. Procesar Archivos
-- Haga clic en el botón "Procesar Archivos"
-- La aplicación mostrará una barra de progreso
+- Haga clic en el botón "Procesar Archivos CFDI" (solo habilitado cuando todos los campos estén completos)
+- La aplicación mostrará una barra de progreso y estado del procesamiento
 - Durante el procesamiento:
+  - Se validará que la pestaña del mes seleccionado exista en el Excel
   - Se extraerán los datos de cada XML
   - Se validará la estructura de los archivos
   - Se mapearán los datos a las columnas correspondientes
+- **Nota**: Si la pestaña del mes no existe en el Excel, se mostrará un error con las pestañas disponibles
 
-### 6. Descargar Resultado
-- Una vez completado el procesamiento, aparecerá el botón "Descargar Resultado"
-- Haga clic para guardar el archivo Excel con los datos llenos
-- El archivo se guardará con el nombre: `CFDI_Control_[AÑO]_[MES]_[FECHA].xlsx`
+### 6. Abrir Ubicación del Archivo
+- Una vez completado el procesamiento, aparecerá el botón "Abrir Ubicación del Archivo"
+- Haga clic para abrir la carpeta donde se guardó el archivo procesado
+- El archivo se guardará automáticamente con el nombre: `CFDI_Control_[AÑO]_[MES]_[FECHA].xlsx`
+- **Nota**: El archivo se crea automáticamente al completar el procesamiento. Este botón solo abre la ubicación.
 
 ## 📊 Mapeo de Datos
 
@@ -95,7 +101,8 @@ La aplicación extrae los siguientes datos de los archivos XML y los coloca en l
 - La plantilla debe tener **12 pestañas** (una para cada mes)
 - Los **encabezados** deben estar en la **fila 3**
 - Los **datos** se llenarán a partir de la **fila 4**
-- Los nombres de las pestañas deben ser: Enero, Febrero, Marzo, etc.
+- Los nombres de las pestañas deben ser: **Ene2025, Feb2025, Mar2025, Abr2025, May2025, Jun2025, Jul2025, Ago2025, Sep2025, Oct2025, Nov2025, Dic2025**
+- **Nota**: El año en los nombres de las pestañas debe coincidir con el año seleccionado
 
 ### Archivos XML
 - Deben ser archivos CFDI válidos
@@ -110,9 +117,10 @@ La aplicación extrae los siguientes datos de los archivos XML y los coloca en l
 ## 🔧 Solución de Problemas
 
 ### Error: "Archivo Excel no válido"
-- Verifique que el archivo tenga las 12 pestañas de meses
+- Verifique que el archivo tenga las 12 pestañas de meses con nombres correctos (Ene2025, Feb2025, etc.)
 - Asegúrese de que los encabezados estén en la fila 3
 - Verifique que el archivo no esté corrupto
+- **Error específico**: "La pestaña 'X' no existe en la plantilla Excel" - Verifique que la pestaña del mes seleccionado exista
 
 ### Error: "Archivo XML no válido"
 - Verifique que el archivo sea un CFDI válido
@@ -129,6 +137,13 @@ La aplicación extrae los siguientes datos de los archivos XML y los coloca en l
 - Verifique que no haya otros procesos usando los archivos
 - Reinicie su computadora si el problema persiste
 
+### El botón "Procesar Archivos CFDI" está deshabilitado
+- Asegúrese de haber seleccionado un año
+- Asegúrese de haber seleccionado un mes
+- Asegúrese de haber seleccionado un archivo Excel
+- Asegúrese de haber seleccionado al menos un archivo XML
+- El botón se habilitará automáticamente cuando todos los campos estén completos
+
 ## 📞 Soporte Técnico
 
 Si encuentra algún problema o tiene preguntas:
@@ -143,7 +158,13 @@ Si encuentra algún problema o tiene preguntas:
 
 ## 📝 Notas de la Versión
 
-### Versión 1.0.0
+### Versión 1.1.0
+- **Nuevo**: Validación de pestañas de mes en Excel antes del procesamiento
+- **Nuevo**: Nombres de meses en español en la interfaz (Enero, Febrero, etc.)
+- **Nuevo**: Botón "Abrir Ubicación del Archivo" en lugar de descarga
+- **Nuevo**: Validación automática de campos - botón de procesar se habilita solo cuando todos los campos están completos
+- **Mejorado**: Mensajes de error más detallados con información sobre pestañas disponibles
+- **Mejorado**: Interfaz más intuitiva con estados de botones dinámicos
 - Procesamiento básico de archivos XML CFDI
 - Llenado automático de plantillas Excel
 - Interfaz gráfica intuitiva
@@ -152,5 +173,5 @@ Si encuentra algún problema o tiene preguntas:
 
 ---
 
-*Última actualización: [Fecha actual]*
-*Versión del manual: 1.0* 
+*Última actualización: Enero 2025*
+*Versión del manual: 1.1* 
