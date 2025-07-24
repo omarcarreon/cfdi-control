@@ -99,6 +99,7 @@ jobs:
         pyinstaller cfdi_control.spec
     
     - name: Prepare distribution package
+      shell: bash
       run: |
         # Create distribution directory
         mkdir -p dist/CFDI_Control_${{ runner.os }}
