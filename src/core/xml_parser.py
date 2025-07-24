@@ -65,8 +65,9 @@ class CFDIXMLParser:
             Extracted value or empty string if not found
         """
         try:
-            # Define namespace mapping
-            namespaces = {'cfdi': 'http://www.sat.gob.mx/cfd/4'}
+            # Define namespace mappings for different CFDI versions
+            namespaces_v3 = {'cfdi': 'http://www.sat.gob.mx/cfd/3'}
+            namespaces_v4 = {'cfdi': 'http://www.sat.gob.mx/cfd/4'}
             
             # Split path into element and attribute
             if '/@' in xml_path:
@@ -76,13 +77,19 @@ class CFDIXMLParser:
                 if element_path == 'cfdi:Comprobante':
                     return root.get(attr_name, '')
                 
-                # Handle child element attributes
-                element = root.find(element_path, namespaces)
+                # Handle child element attributes - try both namespaces
+                element = root.find(element_path, namespaces_v3)
+                if element is None:
+                    element = root.find(element_path, namespaces_v4)
+                
                 if element is not None:
                     return element.get(attr_name, '')
             else:
-                # Just element path (no attribute)
-                element = root.find(xml_path, namespaces)
+                # Just element path (no attribute) - try both namespaces
+                element = root.find(xml_path, namespaces_v3)
+                if element is None:
+                    element = root.find(xml_path, namespaces_v4)
+                
                 if element is not None:
                     return element.text or ''
                         
