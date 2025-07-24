@@ -57,12 +57,14 @@ class TestCFDIIntegration(unittest.TestCase):
         # Remove default sheet
         wb.remove(wb.active)
         
-        # Create month tabs with proper names
-        month_names = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-                      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+        # Create month tabs with proper names (Excel format: Ene2024, Feb2024, etc.)
+        month_abbreviations = ["Ene", "Feb", "Mar", "Abr", "May", "Jun",
+                              "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+        current_year = 2024
         
-        for month_name in month_names:
-            ws = wb.create_sheet(month_name)
+        for i, month_abbr in enumerate(month_abbreviations, 1):
+            month_tab_name = f"{month_abbr}{current_year}"
+            ws = wb.create_sheet(month_tab_name)
             
             # Add headers in row 3
             for xml_path, column in CFDI_MAPPING.items():

@@ -87,9 +87,10 @@ class CFDIApplication:
         # Month selection
         ttk.Label(year_frame, text="Mes:").grid(row=0, column=2, padx=(0, 5))
         self.month_var = tk.StringVar(value="")  # No default selection
+        month_names = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
         month_combo = ttk.Combobox(year_frame, textvariable=self.month_var,
-                                   values=[""] + [f"{i:02d}" for i in range(1, 13)],  # Add empty option
-                                   width=10, state="readonly")
+                                   values=month_names, width=10, state="readonly")
         month_combo.grid(row=0, column=3)
         
         # File Selection Section
@@ -235,6 +236,7 @@ class CFDIApplication:
     def _reset_ui(self):
         """Reset the UI to ready state."""
         self.process_button.config(state="normal")
+        self.download_button.config(state="disabled")
         self.status_var.set("Listo para procesar")
         self.progress_var.set(0)
     
@@ -255,6 +257,52 @@ class CFDIApplication:
             self.process_button.config(state="normal")
         else:
             self.process_button.config(state="disabled")
+        
+        # Always disable download button until processing is complete
+        self.download_button.config(state="disabled")
+    
+    def _validate_month_tab_exists(self, year: int, month: int) -> bool:
+        """
+        Validate that the selected month tab exists in the Excel template.
+        
+        Args:
+            year: Selected year
+            month: Selected month (1-12)
+            
+        Returns:
+            True if month tab exists, False otherwise
+        """
+        try:
+            excel_template = self.excel_path_var.get()
+            
+            # Load the Excel workbook
+            workbook = self.excel_processor.load_template(excel_template)
+            if not workbook:
+                messagebox.showerror("Error", "No se pudo cargar la plantilla Excel.")
+                return False
+            
+            # Try to find the month tab
+            month_worksheet = self.excel_processor.find_month_tab(workbook, month, year)
+            if not month_worksheet:
+                # Get the expected tab name format
+                expected_tab_name = self.excel_processor.get_month_tab_name(month, year)
+                month_names = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                              "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+                selected_month_name = month_names[month]
+                
+                error_msg = f"La pestaña '{selected_month_name}' no existe en la plantilla Excel.\n\n"
+                error_msg += f"Se esperaba encontrar: '{expected_tab_name}'\n"
+                error_msg += f"Pestañas disponibles: {', '.join(workbook.sheetnames)}\n\n"
+                error_msg += f"Por favor seleccione un mes que exista en la plantilla."
+                
+                messagebox.showerror("Error", error_msg)
+                return False
+            
+            return True
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al validar la plantilla Excel: {str(e)}")
+            return False
     
     def open_file_location(self):
         """Open the file location in the system's file explorer."""
@@ -325,9 +373,20 @@ class CFDIApplication:
             
         try:
             year = int(self.year_var.get())
-            month = int(self.month_var.get())
+            # Convert month name to number
+            month_name = self.month_var.get().strip()
+            month_names = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+            if month_name not in month_names:
+                messagebox.showerror("Error", "Por favor seleccione un mes válido.")
+                return
+            month = month_names.index(month_name)
         except ValueError:
             messagebox.showerror("Error", "Por favor seleccione un año y mes válidos.")
+            return
+        
+        # Validate that the selected month tab exists in the Excel file
+        if not self._validate_month_tab_exists(year, month):
             return
         
         # Update UI

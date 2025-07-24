@@ -60,12 +60,14 @@ class TestExcelProcessor(unittest.TestCase):
         # Remove default sheet
         wb.remove(wb.active)
         
-        # Create month tabs with proper names
-        month_names = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-                      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+        # Create month tabs with proper names (Excel format: Ene2024, Feb2024, etc.)
+        month_abbreviations = ["Ene", "Feb", "Mar", "Abr", "May", "Jun",
+                              "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+        current_year = 2024
         
-        for month_name in month_names:
-            ws = wb.create_sheet(month_name)
+        for i, month_abbr in enumerate(month_abbreviations, 1):
+            month_tab_name = f"{month_abbr}{current_year}"
+            ws = wb.create_sheet(month_tab_name)
             
             # Add headers in row 3
             for xml_path, column in CFDI_MAPPING.items():
@@ -82,8 +84,8 @@ class TestExcelProcessor(unittest.TestCase):
         workbook = self.processor.load_template(template_path)
         
         self.assertIsNotNone(workbook)
-        self.assertIn("Enero", workbook.sheetnames)
-        self.assertIn("Diciembre", workbook.sheetnames)
+        self.assertIn("Ene2024", workbook.sheetnames)
+        self.assertIn("Dic2024", workbook.sheetnames)
     
     def test_load_template_nonexistent(self):
         """Test loading a non-existent template."""
@@ -131,7 +133,7 @@ class TestExcelProcessor(unittest.TestCase):
         template_path = os.path.join(self.temp_dir, "test_template.xlsx")
         self.create_test_excel_template(template_path)
         workbook = self.processor.load_template(template_path)
-        worksheet = workbook["Enero"]
+        worksheet = workbook["Ene2024"]
         
         # Add some test data
         worksheet["A4"] = "Test Data"
@@ -149,7 +151,7 @@ class TestExcelProcessor(unittest.TestCase):
         template_path = os.path.join(self.temp_dir, "test_template.xlsx")
         self.create_test_excel_template(template_path)
         workbook = self.processor.load_template(template_path)
-        worksheet = workbook["Enero"]
+        worksheet = workbook["Ene2024"]
         
         # Fill data
         success = self.processor.fill_month_tab(worksheet, [self.sample_cfdi_data], 1)
