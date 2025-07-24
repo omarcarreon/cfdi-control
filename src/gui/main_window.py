@@ -236,7 +236,6 @@ class CFDIApplication:
     def _reset_ui(self):
         """Reset the UI to ready state."""
         self.process_button.config(state="normal")
-        self.download_button.config(state="disabled")
         self.status_var.set("Listo para procesar")
         self.progress_var.set(0)
     
@@ -257,9 +256,6 @@ class CFDIApplication:
             self.process_button.config(state="normal")
         else:
             self.process_button.config(state="disabled")
-        
-        # Always disable download button until processing is complete
-        self.download_button.config(state="disabled")
     
     def _validate_month_tab_exists(self, year: int, month: int) -> bool:
         """
@@ -324,7 +320,6 @@ class CFDIApplication:
                     # Open folder in default file manager
                     subprocess.run(["xdg-open", str(file_path.parent)])
                     
-                messagebox.showinfo("Información", f"Ubicación del archivo abierta: {file_path.name}")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo abrir la ubicación del archivo: {str(e)}")
         else:
